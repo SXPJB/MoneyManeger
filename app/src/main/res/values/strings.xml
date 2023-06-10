@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Money Manager</string>
+    <string name="btn_enter">Enter</string>
+    <string name="et_pin_code">* * * * *</string>
+    <string name="lb_pin_code">Enter you pin code</string>
+    <string name="mi_dashboard_title">Dashboard</string>
+    <string name="mi_accounts_title">Accounts</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="add_account">Add Account</string>
+    <string name="account_name">Enter your account name</string>
+    <string name="account_balance">Enter you initial amount</string>
+    <string name="btn_delete_account">Delete</string>
+    <string name="creation_date">Creation Date:</string>
+    <string name="mi_transactions_title">Transactions</string>
+    <string name="btn_search">Search</string>
+    <string name="add_account_fbtn">Add Account</string>
+    <string name="add_transaction_fbtn">Add Transaction</string>
+    <string name="add_transaction_title">Add Transaction</string>
+    <string name="transaction_description_hint">Description</string>
+    <string name="transaction_amount_hint">Amount ($)</string>
+    <string name="all_accounts">All Accounts</string>
+</resources>

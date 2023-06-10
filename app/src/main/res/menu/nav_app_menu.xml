@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/miDashboard"
+        android:title="@string/mi_dashboard_title" />
+    <item
+        android:id="@+id/miAccounts"
+        android:title="@string/mi_accounts_title" />
+    <item
+        android:id="@+id/miTransactions"
+        android:title="@string/mi_transactions_title"/>
+</menu>
