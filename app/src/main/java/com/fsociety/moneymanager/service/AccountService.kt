@@ -2,6 +2,7 @@ package com.fsociety.moneymanager.service
 
 import com.fsociety.moneymanager.config.db.MoneyManagerDB
 import com.fsociety.moneymanager.model.AccountView
+import com.fsociety.moneymanager.model.TransactionType
 import com.fsociety.moneymanager.model.entities.AccountVO
 import com.fsociety.moneymanager.model.entities.TransactionVO
 import org.joda.time.DateTime
@@ -27,7 +28,8 @@ class AccountService(
                 name = account.name
             ),
             amount = amount,
-            description = "Initial balance"
+            description = "Initial balance",
+            type = TransactionType.INCOME.id
         )
         db.transactionDAO()
             .saveTransaction(transactionVO)

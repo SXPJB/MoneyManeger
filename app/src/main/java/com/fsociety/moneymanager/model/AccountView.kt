@@ -17,5 +17,9 @@ data class AccountView(
             )
         }
     }
+
+    override fun toString(): String {
+        return name
+    }
 }
 

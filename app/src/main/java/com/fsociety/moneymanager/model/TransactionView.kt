@@ -8,6 +8,7 @@ data class TransactionView(
     val accountName: String,
     val amount: Double,
     val description: String,
+    val type: TransactionType,
     val transactionDate: DateTime = DateTime.now()
 ) {
     companion object {
@@ -17,6 +18,7 @@ data class TransactionView(
                 transaction.accountId.name,
                 transaction.amount,
                 transaction.description,
+                TransactionType.getById(transaction.type),
                 transaction.transactionDate
             )
         }

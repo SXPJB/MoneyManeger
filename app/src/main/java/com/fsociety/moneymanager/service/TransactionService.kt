@@ -1,10 +1,12 @@
 package com.fsociety.moneymanager.service
 
 import com.fsociety.moneymanager.config.db.MoneyManagerDB
+import com.fsociety.moneymanager.model.TransactionType
 import com.fsociety.moneymanager.model.TransactionView
 import com.fsociety.moneymanager.model.entities.AccountVO
 import com.fsociety.moneymanager.model.entities.TransactionVO
 import org.joda.time.DateTime
+import kotlin.math.abs
 
 class TransactionService(
     private val db: MoneyManagerDB
@@ -29,17 +31,22 @@ class TransactionService(
         if (transaction.id == 0) {
             throw Exception("Transaction not found")
         }
-        if (data.containsKey("accountId")) {
-            transaction.accountId = data["accountId"] as AccountVO
+        data["accountId"]?.let {
+            transaction.accountId = it as AccountVO
         }
-        if (data.containsKey("amount")) {
-            transaction.amount = data["amount"] as Double
+        data["amount"]?.let {
+            val type: TransactionType = TransactionType.getById(data["type"] as Int)
+            val amount: Double = abs(data["amount"] as Double)
+            transaction.amount = type.modifier * amount
         }
-        if (data.containsKey("description")) {
-            transaction.description = data["description"] as String
+        data["description"]?.let {
+            transaction.description = it as String
         }
-        if (data.containsKey("transactionDate")) {
-            transaction.transactionDate = data["transactionDate"] as DateTime
+        data["type"]?.let {
+            transaction.type = it as Int
+        }
+        data["transactionDate"]?.let {
+            transaction.transactionDate = it as DateTime
         }
         transaction.updateAt = DateTime.now()
         return db.transactionDAO().updateTransaction(transaction)

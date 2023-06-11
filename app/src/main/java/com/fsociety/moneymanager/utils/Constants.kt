@@ -2,9 +2,9 @@ package com.fsociety.moneymanager.utils
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.fsociety.moneymanager.R
 
 val PIN_CODE: String = "797589"
+val DATE_FORMAT: String = "dd/MM/yyyy HH:mm:ss"
 
 fun setCurrentFragment(
     supportFragmentManager: FragmentManager,

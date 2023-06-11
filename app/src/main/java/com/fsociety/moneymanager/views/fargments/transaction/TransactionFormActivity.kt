@@ -1,5 +1,6 @@
 package com.fsociety.moneymanager.views.fargments.transaction
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,11 +11,16 @@ import com.fsociety.moneymanager.R
 import com.fsociety.moneymanager.config.db.MoneyManagerDB
 import com.fsociety.moneymanager.databinding.ActivityTransactionFormBinding
 import com.fsociety.moneymanager.model.AccountView
+import com.fsociety.moneymanager.model.TransactionType
 import com.fsociety.moneymanager.model.entities.TransactionVO
 import com.fsociety.moneymanager.service.AccountService
 import com.fsociety.moneymanager.service.TransactionService
-import com.fsociety.moneymanager.views.adapters.AccountAdapterSpinner
+import com.fsociety.moneymanager.utils.DATE_FORMAT
+import com.fsociety.moneymanager.views.adapters.SpinnerAdapter
 import kotlinx.coroutines.launch
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import java.util.Calendar
 
 class TransactionFormActivity : AppCompatActivity() {
 
@@ -41,32 +47,62 @@ class TransactionFormActivity : AppCompatActivity() {
             MoneyManagerDB::class.java,
             "money_manager"
         ).build()
+
         accountService = AccountService(db)
         transactionService = TransactionService(db)
+
+        defaultValues()
+
         populateAccountSpinner()
+        populateTransactionTypeSpinner()
+        setListeners()
+    }
+
+    private fun defaultValues() {
+        binding.etTransactionDate.setText(DateTime.now().toString(DATE_FORMAT))
+    }
+
+    private fun setListeners() {
+        binding.etTransactionDate.setOnClickListener {
+            showDatePicker()
+        }
     }
 
     private fun populateAccountSpinner() {
         lifecycleScope.launch {
             val accounts = accountService.findAll()
-            binding.spAccountTF.adapter = AccountAdapterSpinner(
+            binding.spAccountTF.adapter = SpinnerAdapter(
                 this@TransactionFormActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                accounts
+                accounts.map { AccountView(it.id, it.name) }
             )
             loadData()
         }
+    }
+
+    private fun populateTransactionTypeSpinner() {
+        binding.spTranssactionType.adapter = SpinnerAdapter(
+            this@TransactionFormActivity,
+            TransactionType.getAllTypes()
+        )
     }
 
     private suspend fun loadData() {
         transactionId = intent.getIntExtra("transaction_id", 0)
         if (transactionId != 0) {
             transactionService.findById(transactionId).let {
-                val adapter = binding.spAccountTF.adapter as AccountAdapterSpinner
-                val data = adapter.getPosition(AccountView(it.accountId.id, it.accountId.name))
-                binding.spAccountTF.setSelection(data)
+                val accountAdapter = binding.spAccountTF.adapter as SpinnerAdapter<AccountView>
+                val accountSelected =
+                    accountAdapter.getPosition { view -> view.id == it.accountId.id }
+                binding.spAccountTF.setSelection(accountSelected)
+                val transactionTypeAdapter =
+                    binding.spTranssactionType.adapter as SpinnerAdapter<TransactionType>
+                val transactionTypeSelected =
+                    transactionTypeAdapter.getPosition { view -> view.id == it.type }
+                binding.spTranssactionType.setSelection(transactionTypeSelected)
                 binding.etTAmount.setText(it.amount.toString())
                 binding.etTDescription.setText(it.description)
+                val dateStr = it.transactionDate.toString(DATE_FORMAT)
+                binding.etTransactionDate.setText(dateStr)
             }
         }
     }
@@ -74,14 +110,17 @@ class TransactionFormActivity : AppCompatActivity() {
     private fun saveTransaction() {
         lifecycleScope.launch {
             val accountSelected = binding.spAccountTF.selectedItem as AccountView
+            val transactionTypeSelected = binding.spTranssactionType.selectedItem as TransactionType
             accountSelected.id?.let {
                 accountService.findAccountById(it)
-            }.also {
+            }?.also {
                 val transaction = TransactionVO(
                     id = 0,
-                    amount = binding.etTAmount.text.toString().toDouble(),
+                    amount = (binding.etTAmount.text.toString()
+                        .toDouble() * transactionTypeSelected.modifier),
                     description = binding.etTDescription.text.toString(),
-                    accountId = it!!
+                    type = transactionTypeSelected.id,
+                    accountId = it
                 )
                 transactionService.save(transaction!!)
                 finish()
@@ -94,16 +133,42 @@ class TransactionFormActivity : AppCompatActivity() {
             val accountSelected = binding.spAccountTF.selectedItem as AccountView
             accountSelected.id?.let {
                 accountService.findAccountById(it)
-            }.also {
+            }?.also {
                 val data = mapOf(
                     "amount" to binding.etTAmount.text.toString().toDouble(),
                     "description" to binding.etTDescription.text.toString(),
-                    "accountId" to it!!
+                    "type" to (binding.spTranssactionType.selectedItem as TransactionType).id,
+                    "accountId" to it,
+                    "transactionDate" to DateTimeFormat
+                        .forPattern(DATE_FORMAT)
+                        .parseDateTime(binding.etTransactionDate.text.toString())
                 )
                 transactionService.update(transactionId, data)
                 finish()
             }
         }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        DatePickerDialog(
+            this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(selectedYear, selectedMonth, selectedDay)
+                binding.etTransactionDate.setText(
+                    DateTimeFormat
+                        .forPattern(DATE_FORMAT)
+                        .print(selectedDate.timeInMillis)
+                )
+            },
+            year,
+            month,
+            day
+        ).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

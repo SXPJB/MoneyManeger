@@ -24,6 +24,8 @@ data class TransactionVO(
     var accountId: AccountVO,
     @ColumnInfo(name = "description")
     var description: String,
+    @ColumnInfo(name = "type")
+    var type: Int,
     @ColumnInfo(name = "amount")
     var amount: Double,
     @ColumnInfo(name = "transaction_date")
