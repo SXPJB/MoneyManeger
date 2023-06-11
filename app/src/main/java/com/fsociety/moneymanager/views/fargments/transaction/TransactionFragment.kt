@@ -1,6 +1,5 @@
 package com.fsociety.moneymanager.views.fargments.transaction
 
-import android.R
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -18,7 +17,7 @@ import com.fsociety.moneymanager.model.AccountView
 import com.fsociety.moneymanager.model.TransactionView
 import com.fsociety.moneymanager.service.AccountService
 import com.fsociety.moneymanager.service.TransactionService
-import com.fsociety.moneymanager.views.adapters.AccountAdapterSpinner
+import com.fsociety.moneymanager.views.adapters.SpinnerAdapter
 import com.fsociety.moneymanager.views.fargments.transaction.listeners.TransactionListener
 import kotlinx.coroutines.launch
 
@@ -80,9 +79,8 @@ class TransactionFragment : Fragment(), TransactionListener {
             val accounts: MutableList<AccountView> = accountService.findAll().toMutableList()
             val account = AccountView(name = "All Accounts")
             accounts.add(0, account)
-            binding.spAccounts.adapter = AccountAdapterSpinner(
+            binding.spAccounts.adapter = SpinnerAdapter(
                 context,
-                R.layout.simple_spinner_dropdown_item,
                 accounts
             )
         }
